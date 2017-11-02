@@ -1,0 +1,22 @@
+{
+    "server":{"host": "0.0.0.0", "port": 1337},
+    "storage": {
+        "type": "file",
+        "file":{"path": "./vnf_db"},
+        "postgres":{"host": "127.0.0.1", "port": 5432, "user":"postgres", "password": "mysecretpassword", "db": "vnf_db"}
+    },
+    "templates": {
+        "path": "./templates",
+        "version": "1"
+    },
+    "logging": {
+        "level": "info",
+        "output": "stdout",
+        "file": {"path": "/var/log/vnf.log"},
+        "project_id": "328cce52738c9ab",
+        "logstash": {"host":"laas-in-prod-ow-pl.itn.ftgroup", "port": 443, "protocol":"tcp"}
+    },
+    "options": {
+        "documentation": true
+    }
+}
