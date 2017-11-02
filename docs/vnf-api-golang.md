@@ -12,37 +12,46 @@ The VNF HTTP rest API depends on libraries present in the file glide.yml. The `g
 
 The configuration of the VNF and its API is handled with the help of [Viper](https://github.com/spf13/viper). The configuration can be set through different streams: cli flags, environment, file, defaults. These options are ordered by priority in case of multiple configuration streams.
 
-```console
-# CLI Options accessible -h or --help on the app
-    --logging.file.path string           logging path if file output is chosen for your API logging (default "./log/vnf.log")
-    --logging.level string               logging level for your API (debug, info, warn, error, fatal, panic (default "info")
-    --logging.logstash.host string       Logstash hostname (default is Logaas server) (default "laas-in-prod-ow-pl.itn.ftgroup")
-    --logging.logstash.port int          Logstash server port (default 443)
-    --logging.logstash.protocol string   Logstash server net protocol (default "tcp")
-    --logging.output string              logging output for your API (stdout, file, logstash) (default "stdout")
-    --logging.project_id string          Project ID given by the Logaas application (mandatory if you use logstash with Logaas option) (default "328cce52738c9ab")
-    --options.documentation              Enable or disable the openAPI (aka swagger) documentation on your API (default true)
-    --server.host string                 server hostname (default "127.0.0.1")
-    --server.port int                    server listening port (default 1337)
-    --storage.file.path string           storage database location path (storage is a file) (default "./vnf_db")
-    --storage.postgres.db string         postgres storage server database (default "vnf_db")
-    --storage.postgres.host string       postgres storage server hostname (default "127.0.0.1")
-    --storage.postgres.password string   postgres storage server password (default "myScretPassword")
-    --storage.postgres.port int          postgres storage server port (default 5432)
-    --storage.postgres.user string       postgres storage server username (default "postgres")
-    --templates.path string              templates for VNF configuration path (default "./templates")
-    --templates.version string           templates for VNF configuration version (default "v1")
+### CLI options accessible -h or --help on the app
 
-```
 ```console
-# Environement variables should be prefixed with "VNF". Examples:
+    --logging.file.path string               logging path if file output is chosen for your API logging (default "./log/vnf.log")
+    --logging.level string                   logging level for your API (debug, info, warn, error, fatal, panic (default "info")
+    --logging.logstash.host string           Logstash hostname (default is Logaas server) (default "laas-in-prod-ow-pl.itn.ftgroup")
+    --logging.logstash.port int              Logstash server port (default 443)
+    --logging.logstash.protocol string       Logstash server net protocol (default "tcp")
+    --logging.output string                  logging output for your API (stdout, file, logstash) (default "stdout")
+    --logging.project_id string              Project ID given by the Logaas application (mandatory if you use logstash with Logaas option) (default "328cce52738c9ab")
+    --options.documentation.enabled          Enable or disable the openAPI (aka swagger) documentation on your API (default true)
+    --options.documentation.version string   version (tag) of the openAPI (aka swagger) documentation on your API (more: https://github.com/swagger-api/swagger-ui) (default "v2.2.10")
+    --server.host string                     server hostname (default "127.0.0.1")
+    --server.port int                        server listening port (default 1337)
+    --storage.file.path string               storage database location path (storage is a file) (default "./vnf_db")
+    --storage.postgres.db string             postgres storage server database (default "vnf_db")
+    --storage.postgres.host string           postgres storage server hostname (default "127.0.0.1")
+    --storage.postgres.password string       postgres storage server password (default "myScretPassword")
+    --storage.postgres.port int              postgres storage server port (default 5432)
+    --storage.postgres.user string           postgres storage server username (default "postgres")
+    --storage.type string                    storage database type (file, postgres) (default "file")
+    --templates.path string                  templates for VNF configuration path (default "./templates")
+    --templates.version string               templates for VNF configuration version (default "v1")
+```
+
+### Environement variables 
+
+They should be prefixed with "VNF". Examples:
+
+```console
 export VNF_SERVER_HOST=192.18.21.45
 export VNF_LOGGING_OUTPUT=stdout
 export VNF_LOGGING_OUTPUT=logstash
 ```
 
+### Configuration file
+
+This is a configuration file. You can write your own in any Viper supported formats: JSON, TOML, YAML, HCL, or Java properties. Configuration file `config` (whatever extension you chose) is expected in one of these locations: /etc/vnf-api-golang/, $HOME/.vnf-api/, or ./config/
+
 ```json
-// this is a configuration file. You can write your own in any Viper supported formats: JSON, TOML, YAML, HCL, or Java properties
 {
     "server":{"host": "0.0.0.0", "port": 1337},
     "storage": {
@@ -62,7 +71,7 @@ export VNF_LOGGING_OUTPUT=logstash
         "logstash": {"host":"laas-in-prod-ow-pl.itn.ftgroup", "port": 443, "protocol":"tcp"}
     },
     "options": {
-        "documentation": true
+        "documentation": { "enabled": true, "version": "v2.2.10"}
     }
 }
 ```

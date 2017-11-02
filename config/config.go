@@ -7,6 +7,8 @@ import(
 	"database/sql"
 	"time"
 	"strings"
+	"io/ioutil"
+	"github.com/sofianinho/vnf-api-golang/utils"
 
 	"github.com/sirupsen/logrus"
 	"github.com/bshuster-repo/logrus-logstash-hook"
@@ -17,7 +19,6 @@ import(
 
 //some constants for allowed configuration types
 var storageTypes = map[string]struct{}{"file": {}, "postgres": {}}
-const storageAllowedTypes string = "file, postgres"
 var logLevels = map[string]logrus.Level{
 	"debug": 	logrus.DebugLevel,
 	"info": 	logrus.InfoLevel,
@@ -26,18 +27,24 @@ var logLevels = map[string]logrus.Level{
 	"fatal":	logrus.FatalLevel,
 	"panic":	logrus.FatalLevel,
 }
-const logAllowedLevels string = "debug, info, warn, error, fatal, panic"
 var logOutputs = map[string]struct{}{"stdout":{}, "file":{}, "logstash":{}}
-const logAllowedOutputs string = "stdout, file, logstash"
-const logstashTimeout =  5*time.Second
-
-
+const(
+	storageAllowedTypes string = "file, postgres"
+	logAllowedLevels string = "debug, info, warn, error, fatal, panic"
+	logAllowedOutputs string = "stdout, file, logstash"
+	logstashTimeout =  5*time.Second
+	swaggerSourceURL = "https://github.com/swagger-api/swagger-ui/archive/"
+	ApiSubpath = "/api/"
+	ApiCurrentVersion = "v1"
+)
+var ApiSupportedVersions= map[string]struct{}{"v1": {}}
 
 // Params contains the configuration parameters as a Viper interface
 var Params *viper.Viper
 // Log is the global logger 
 var Log *logrus.Logger
-
+// SwaggerPath is the path to the swagger-ui folder with the frontend
+var SwaggerPath string
 
 
 func init(){
@@ -66,7 +73,8 @@ func init(){
 	pflag.String("logging.logstash.protocol", "tcp", "Logstash server net protocol")
 	pflag.String("logging.logstash.host", "laas-in-prod-ow-pl.itn.ftgroup", "Logstash hostname (default is Logaas server)")
 	pflag.Int("logging.logstash.port", 443, "Logstash server port")
-	pflag.Bool("options.documentation", true, "Enable or disable the openAPI (aka swagger) documentation on your API")
+	pflag.Bool("options.documentation.enabled", true, "Enable or disable the openAPI (aka swagger) documentation on your API")
+	pflag.String("options.documentation.version", "v2.2.10", "version (tag) of the openAPI (aka swagger) documentation on your API (more: https://github.com/swagger-api/swagger-ui)")
 
 }
 
@@ -94,7 +102,27 @@ func Parse()(error){
 	if err := storageConfig(Params); err!= nil{
 		Log.Fatalf("Unable to configure the storage: %s", err)
 	}
-
+	if Params.GetBool("options.documentation.enabled"){
+		var err error
+		var path string
+		if path, err = setDocumentation(Params); err != nil{
+			Log.Fatalf("Unable to set documentation for this application: %s", err)
+		}
+		//setup the link inside the actual swagger.json link in the swagger-ui folder
+		r:="http://petstore.swagger.io/v2/swagger.json"
+		s:=fmt.Sprintf("http://%s:%s%s%s/swagger.json", Params.GetString("server.host"), Params.GetString("server.port"), ApiSubpath, ApiCurrentVersion)
+		uiPage := path+"/dist/index.html"
+		read, err := ioutil.ReadFile(uiPage)
+		if err != nil {
+			Log.Fatalf("Unable to setup documentation. Could not read ui file: %s", err)
+		}
+		newContents := strings.Replace(string(read), r, s, -1)
+		err = ioutil.WriteFile(uiPage, []byte(newContents), 0)
+		if err != nil {
+			Log.Fatalf("Unable to setup documentation. Could not replace url in ui file: %s", err)
+		}
+		SwaggerPath = path
+	}
 	//by default, viper will watch for config changes
 	Params.WatchConfig()
 	return nil
@@ -104,8 +132,8 @@ func Parse()(error){
 func setDefaults(c *viper.Viper){
 	//setting the configuration file options
 	c.SetConfigName("config")
-	c.AddConfigPath("/etc/vnf-api-golang/")
-	c.AddConfigPath("$HOME/.vnf-api-golang/")
+	c.AddConfigPath("/etc/vnf-api/")
+	c.AddConfigPath("$HOME/.vnf-api/")
 	c.AddConfigPath("./config/")
 	//setting defaults section by section
 	c.SetDefault("server.host", "127.0.0.1")
@@ -116,7 +144,8 @@ func setDefaults(c *viper.Viper){
 	c.SetDefault("templates.version", "1")
 	c.SetDefault("logging.level", "info")
 	c.SetDefault("logging.output", "stdout")
-	c.SetDefault("options.documentation", true)
+	c.SetDefault("options.documentation.enabled", true)
+	c.SetDefault("options.documentation.version", "v2.2.10")
 }
 
 func logOptions(c *viper.Viper, l *logrus.Logger) (error){
@@ -193,4 +222,47 @@ func storageConfig(c *viper.Viper) (error){
 		}
 	}
 	return nil
+}
+
+func setDocumentation(c *viper.Viper)(string, error){
+	//check if there is a swagger folder with the same version. No need to redownload it then.
+	version := c.GetString("options.documentation.version")
+	dst := "."
+	var ext string
+	if strings.Index(version, "v") == 0{
+		ext = "swagger.*" + strings.Split(version, "v")[1]
+	} else{
+		ext = "swagger.*" + version
+	}
+	files := utils.FindDirExt(ext, dst)
+	//expects only one occurrence
+	if len(files) > 0{
+		Log.Warnf("Found swagger folder %s with the same version %s you wanted. Will not download again.", files[0], version)
+		return files[0],nil
+	}
+	// here I go to the Internet again
+	location := "/tmp/swagger.zip"
+	url := fmt.Sprintf("%s%s.zip", swaggerSourceURL, version)
+	//get the version from github
+	Log.Debugf("downloading %s into %s", url, location)
+	if err := utils.DownloadFile(location, url); err != nil{
+		return "", err
+	}
+	//unzip the "swagger-ui" folder in the working directory
+	Log.Debugf("unzippping %s into %s", location, dst)
+	if err := utils.Unzip(location, dst); err != nil{
+		return "", err
+	}
+	//return the name of the unzipped folder
+	if strings.Index(version, "v") == 0{
+		ext = "swagger.*" + strings.Split(version, "v")[1]
+	} else{
+		ext = "swagger.*" + version
+	}
+	files = utils.FindDirExt(ext, dst)
+	//expects only one occurrence
+	if len(files) > 0{
+		return files[0],nil
+	}
+	return "",fmt.Errorf("Unzipped documentation UI locally but unable to retrieve it. Expected folder name: swagger-ui-x.y.z, for version: vx.y.z")
 }

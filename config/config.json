@@ -17,6 +17,6 @@
         "logstash": {"host":"laas-in-prod-ow-pl.itn.ftgroup", "port": 443, "protocol":"tcp"}
     },
     "options": {
-        "documentation": true
+        "documentation": { "enabled": true, "version": "v2.2.10"}
     }
 }
