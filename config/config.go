@@ -110,7 +110,8 @@ func Parse()(error){
 		}
 		//setup the link inside the actual swagger.json link in the swagger-ui folder
 		r:="http://petstore.swagger.io/v2/swagger.json"
-		s:=fmt.Sprintf("http://%s:%s%s%s/swagger.json", Params.GetString("server.host"), Params.GetString("server.port"), ApiSubpath, ApiCurrentVersion)
+		//s:=fmt.Sprintf("http://%s:%s%s%s/swagger.json", Params.GetString("server.host"), Params.GetString("server.port"), ApiSubpath, ApiCurrentVersion)
+		s:=fmt.Sprintf("%s%s/swagger.json", ApiSubpath, ApiCurrentVersion)
 		uiPage := path+"/dist/index.html"
 		read, err := ioutil.ReadFile(uiPage)
 		if err != nil {
