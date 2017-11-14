@@ -5,6 +5,10 @@
         "file":{"path": "./vnf_db"},
         "postgres":{"host": "127.0.0.1", "port": 5432, "user":"postgres", "password": "mysecretpassword", "db": "vnf_db"}
     },
+    "scheduler":{
+        "type": "system",
+        "docker": {"host": "", "cert_path": "", "api_version": ""}
+    },
     "templates": {
         "path": "./templates",
         "version": "1"

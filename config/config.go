@@ -9,15 +9,18 @@ import(
 	"strings"
 	"io/ioutil"
 	"github.com/sofianinho/vnf-api-golang/utils"
+	"context"
 
 	"github.com/sirupsen/logrus"
 	"github.com/bshuster-repo/logrus-logstash-hook"
 	"github.com/spf13/viper"
 	"github.com/spf13/pflag"
 	_ "github.com/lib/pq"
+	"github.com/docker/docker/client"
 )
 
 //some constants for allowed configuration types
+var schedulerTypes = map[string]struct{}{"system": {}, "docker": {}}
 var storageTypes = map[string]struct{}{"file": {}, "postgres": {}}
 var logLevels = map[string]logrus.Level{
 	"debug": 	logrus.DebugLevel,
@@ -29,6 +32,7 @@ var logLevels = map[string]logrus.Level{
 }
 var logOutputs = map[string]struct{}{"stdout":{}, "file":{}, "logstash":{}}
 const(
+	schedulerAllowedTypes string = "system, docker"
 	storageAllowedTypes string = "file, postgres"
 	logAllowedLevels string = "debug, info, warn, error, fatal, panic"
 	logAllowedOutputs string = "stdout, file, logstash"
@@ -57,6 +61,10 @@ func init(){
 	//define CLI flags
 	pflag.String("server.host", "127.0.0.1", "server hostname")
 	pflag.Int("server.port", 1337, "server listening port")
+	pflag.String("scheduler.type", "system", "scheduler type (system, docker)")
+	pflag.String("scheduler.docker.host", "", "docker_host for your engine")
+	pflag.String("scheduler.docker.cert_path", "", "docker_cert_path for your client")
+	pflag.String("scheduler.docker.api_version", "", "docker_api_version for your client")
 	pflag.String("storage.type", "file", "storage database type (file, postgres)")
 	pflag.String("storage.file.path", "./vnf_db", "storage database location path (storage is a file)")
 	pflag.String("storage.postgres.host", "127.0.0.1", "postgres storage server hostname")
@@ -99,6 +107,14 @@ func Parse()(error){
 	if err := logOptions(Params, Log); err != nil{
 		Log.Fatalf("Unable to apply all logging options: %s", err)
 	}
+	if err := schedulerConfig(Params); err != nil{
+		Log.Fatalf("Unable to apply scheduler config: %s", err)
+	}
+	if Params.GetString("scheduler.type") == "docker"{
+		if err := testDockerConfig(Params, Log); err!=nil{
+			Log.Fatalf("Unable to apply Docker scheduler config: %s", err)
+		}
+	}
 	if err := storageConfig(Params); err!= nil{
 		Log.Fatalf("Unable to configure the storage: %s", err)
 	}
@@ -139,6 +155,7 @@ func setDefaults(c *viper.Viper){
 	//setting defaults section by section
 	c.SetDefault("server.host", "127.0.0.1")
 	c.SetDefault("server.port", 1337)
+	c.SetDefault("scheduler.type", "system")
 	c.SetDefault("storage.type", "file")
 	c.SetDefault("storage.file", "./vnf_db")
 	c.SetDefault("templates.path", "./templates")
@@ -190,18 +207,27 @@ func logOptions(c *viper.Viper, l *logrus.Logger) (error){
 	return nil
 }
 
+func schedulerConfig(c * viper.Viper)(error){
+	//handle the type
+	if _, ok := schedulerTypes[c.GetString("scheduler.type")]; !ok {
+		return fmt.Errorf("Scheduler type not supported. Allowed values: %s", schedulerAllowedTypes)
+	}
+	return nil
+}
+
 func storageConfig(c *viper.Viper) (error){
 	//handle the type
 	if _, ok := storageTypes[c.GetString("storage.type")]; !ok {
 		return fmt.Errorf("Storage type not supported. Allowed values: %s", storageAllowedTypes)
 	}
-	//test if file type and path are ok
+	//test if file type and path are ok and then remove file
 	if c.Get("storage.type") == "file"{
 		file, err := os.OpenFile(c.GetString("storage.file.path"), os.O_CREATE|os.O_WRONLY, 0666)
-		defer file.Close()
 		if err != nil {
 			return fmt.Errorf("Failed to create the storage in the path you configured: %s", err)
 		}
+		file.Close()
+		os.Remove(c.GetString("storage.file.path"))
 	}
 	//test if postgres config is ok
 	if c.Get("storage.type") == "postgres"{
@@ -266,4 +292,20 @@ func setDocumentation(c *viper.Viper)(string, error){
 		return files[0],nil
 	}
 	return "",fmt.Errorf("Unzipped documentation UI locally but unable to retrieve it. Expected folder name: swagger-ui-x.y.z, for version: vx.y.z")
+}
+
+func testDockerConfig(c *viper.Viper, l *logrus.Logger)(error){
+	os.Setenv("DOCKER_HOST", c.GetString("docker.host"))
+	os.Setenv("DOCKER_CERT_PATH", c.GetString("docker.cert_path"))
+	os.Setenv("DOCKER_API_VERSION", c.GetString("docker.api_version"))
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		return fmt.Errorf("Unable to setup a docker client: %s", err)
+	}
+	i, err := cli.Info(context.Background())
+	if err != nil {
+		return fmt.Errorf("Unable to setup a docker client: %s", err)
+	}
+	l.Infof("Docker engine info: %v", i)
+	return nil
 }
