@@ -14,6 +14,7 @@ var core vnf.API
 
 //Bootstrap initializes the new APIs
 func Bootstrap() (error){
+	serverHost = config.Params.GetString("server.host")
 	//set the scheduler
 	var s scheduler.API
 	if config.Params.GetString("scheduler.type") == "docker"{
