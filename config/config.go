@@ -227,8 +227,17 @@ func storageConfig(c *viper.Viper) (error){
 		if err != nil {
 			return fmt.Errorf("Failed to create the storage in the path you configured: %s", err)
 		}
-		file.Close()
-		os.Remove(c.GetString("storage.file.path"))
+		fi, err := file.Stat()
+		if err != nil {
+			return fmt.Errorf("Could not obtain stat of storage file: %s", err)
+		}
+		//delete the file if empty
+		if fi.Size() > 0 {
+			file.Close()
+		}else{
+			file.Close()
+			os.Remove(c.GetString("storage.file.path"))
+		}
 	}
 	//test if postgres config is ok
 	if c.Get("storage.type") == "postgres"{
