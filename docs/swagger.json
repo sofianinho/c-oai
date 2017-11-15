@@ -1,0 +1,103 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "0.1.0",
+        "title": "VNF Minimal API",
+        "contact": {
+            "name": "Sofiane Imadali <sofiane.imadali@orange.com>"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "host": "your-vnf-deployed.ngpop.com",
+    "basePath": "/VNF-ID/api/v1",
+    "paths": {
+        "/status": {
+            "get": {
+                "summary": "healthcheck of the running instance",
+                "responses": {
+                    "200": {
+                        "description": "OK, returns the system overview"
+                    },
+                    "500": {
+                        "description": "NOK"
+                    }
+                }
+            }
+        },
+        "/configure": {
+            "post": {
+                "summary": "stateless VNF configuration creation from a JSON and a configuration template",
+                "responses": {
+                    "201": {
+                        "description": "Config created"
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/start": {
+            "post": {
+                "summary": "creates a new instance of the VNF with the configuration given before",
+                "responses": {
+                    "201": {
+                        "description": "VNF spawned, returns the name, pid, and other info"
+                    },
+                    "500": {
+                        "description": "VNF cannot start, no config found"
+                    }
+                }
+            }
+        },
+        "/stop/{VNFID}": {
+            "delete": {
+                "summary": "kills a running instance of the VNF if exists",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "VNFID",
+                        "description": "ID of VNF that needs to be stopped",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "VNF stopped, returns the name, pid, and other info"
+                    },
+                    "404": {
+                        "description": "VNF id not found"
+                    }
+                }
+            }
+        },
+        "/status/{VNFID}": {
+            "get": {
+                "summary": "Checks health and status related to the VNF (optionnal)",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "VNFID",
+                        "description": "ID of VNF to check",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK, returns the VNF overview"
+                    },
+                    "404": {
+                        "description": "VNF id not found"
+                    }
+                }
+            }
+        }
+    }
+}
