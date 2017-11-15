@@ -38,6 +38,7 @@ const(
 	logAllowedOutputs string = "stdout, file, logstash"
 	logstashTimeout =  5*time.Second
 	swaggerSourceURL = "https://github.com/swagger-api/swagger-ui/archive/"
+	defaultSwagDoc = "http://petstore.swagger.io/v2/swagger.json"
 	ApiSubpath = "/api/"
 	ApiCurrentVersion = "v1"
 )
@@ -125,7 +126,7 @@ func Parse()(error){
 			Log.Fatalf("Unable to set documentation for this application: %s", err)
 		}
 		//setup the link inside the actual swagger.json link in the swagger-ui folder
-		r:="http://petstore.swagger.io/v2/swagger.json"
+		r:= defaultSwagDoc
 		//s:=fmt.Sprintf("http://%s:%s%s%s/swagger.json", Params.GetString("server.host"), Params.GetString("server.port"), ApiSubpath, ApiCurrentVersion)
 		s:=fmt.Sprintf("%s%s/swagger.json", ApiSubpath, ApiCurrentVersion)
 		uiPage := path+"/dist/index.html"
