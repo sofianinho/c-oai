@@ -1,5 +1,5 @@
 hash: d509973eaa3da4fd2d7ecd485d7fe37da7d628e3e2c9c74ec989118073528ccc
-updated: 2017-11-15T10:18:00.967221087+01:00
+updated: 2017-11-17T10:58:27.766789603+01:00
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -133,10 +133,10 @@ imports:
   - load
   - mem
   - net
-- name: github.com/Sirupsen/logrus
-  version: 89742aefa4b206dcf400792f3bd35b542998eb3b
 - name: github.com/sirupsen/logrus
   version: f006c2ac4710855cf0f916dd6b77acf6b048dc6e
+- name: github.com/Sirupsen/logrus
+  version: 89742aefa4b206dcf400792f3bd35b542998eb3b
 - name: github.com/spf13/afero
   version: 5660eeed305fe5f69c8fc6cf899132a459a97064
   subpackages:
