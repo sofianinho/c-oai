@@ -10,7 +10,7 @@ import(
 )
 
 
-//define the swagger entry 
+//DeleteConfig define the swagger entry 
 var DeleteConfig = endpoint.New("delete", "/session/{session_id}/config/{config_id}", "Delete a VNF configuration in your session",
 	endpoint.Path("session_id", "string", "session id for this config", true),
 	endpoint.Path("config_id", "string", "config id to delete", true),

@@ -11,7 +11,7 @@ import(
 )
 
 
-//define the swagger entry 
+//PostTask define the swagger entry 
 var PostTask = endpoint.New("post", "/session/{session_id}/instance", "Create a new VNF instance in your session",
 	endpoint.Path("session_id", "string", "session id for this instance", true),
 	endpoint.Handler(NewTask),

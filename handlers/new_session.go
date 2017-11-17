@@ -11,9 +11,10 @@ import(
 )
 
 
-//define the swagger entry 
+//PostSession define the swagger entry 
 var PostSession = endpoint.New("post", "/session/", "Create a new session on your VNF manager",
 	endpoint.Query("vnf_name", "string", "the VNF name for this session", false),
+	endpoint.Query("scheduler", "string", "the VNF scheduler for this session (system, docker)", false),
 	endpoint.Handler(NewSession),
 	endpoint.Response(http.StatusCreated, types.Session{}, "Successfully created a new session"),
 	endpoint.Description("Session creation in your VNF manager"),
@@ -25,6 +26,11 @@ func NewSession(c *gin.Context){
 	vnfName := c.Query("vnf_name")
 	if vnfName != "" && vnfName != "oai"{
 		c.AbortWithStatusJSON(http.StatusServiceUnavailable, apiReply{Status: unkVNF})
+		return
+	}
+	sch := c.Query("scheduler")
+	if sch != "" && sch != "system"{
+		c.AbortWithStatusJSON(http.StatusServiceUnavailable, apiReply{Status: wrongConfig})
 		return
 	}
 	s, err := core.SessionNew()

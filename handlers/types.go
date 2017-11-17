@@ -3,6 +3,7 @@ package handlers
 import(
 	"fmt"
 	"github.com/sofianinho/vnf-api-golang/config"
+	"github.com/sofianinho/vnf-api-golang/vnf/types"
 )
 const (
 	unkError = "Server unexpected failure. Try again later."
@@ -16,6 +17,7 @@ const (
 	confNotFound = "Config not found"
 	confCreated = "Config created"
 	confDeleted = "Config deleted and cleaned up"
+	wrongConfig = "Wrong configuration parameters"
 )
 
 var serverHost string
@@ -27,3 +29,15 @@ type apiReply struct{
 }
 
 var urlPath = fmt.Sprintf("%s%s", config.ApiSubpath, config.ApiCurrentVersion)
+
+type confJson struct{
+	Alias 	string			`json:"alias,omitempty"`
+	Tags	[]string		`json:"tags,omitempty"`
+	Params	*types.VNFParams	
+}
+
+type instanceJson struct{
+	Alias		string		`json:"alias,omitempty"`
+	Tags		[]string	`json:"tags,omitempty`
+	ConfigID	string		`json:"config_id"`
+}
