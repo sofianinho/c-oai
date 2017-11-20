@@ -1,3 +1,5 @@
 swagger-ui-*/
 vnf_db
 vendor/
+bin/
+runtime/
