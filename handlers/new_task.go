@@ -14,6 +14,7 @@ import(
 //PostTask define the swagger entry 
 var PostTask = endpoint.New("post", "/session/{session_id}/instance", "Create a new VNF instance in your session",
 	endpoint.Path("session_id", "string", "session id for this instance", true),
+	endpoint.Query("vnf_name", "string", "the VNF name for this session", false),
 	endpoint.Handler(NewTask),
 	endpoint.Body(instanceJson{}, "Instance to be created in the session", true),
 	endpoint.Response(http.StatusCreated, types.Instance{}, "Successfully created an instance"),
@@ -23,6 +24,12 @@ var PostTask = endpoint.New("post", "/session/{session_id}/instance", "Create a 
 
 //NewTask is an HTTP POST handler to create a new VNF instance for the session
 func NewTask(c *gin.Context){
+	vnfName := c.Query("vnf_name")
+	if vnfName != "" && vnfName != "oai"{
+		c.AbortWithStatusJSON(http.StatusServiceUnavailable, apiReply{Status: unkVNF})
+		return
+	}
+
 	sessionID := c.Param("session_id")
 	s := core.SessionGet(sessionID)
 	if s == nil{
