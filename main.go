@@ -38,6 +38,7 @@ func main(){
 		swag.Endpoints(handlers.GetSessions,
 					handlers.PostSession,
 					handlers.GetSession,
+					handlers.GetStatusSession,
 					handlers.DeleteSession,
 					handlers.GetConfigs,
 					handlers.PostConfig,
@@ -56,6 +57,7 @@ func main(){
 		swag.Tag("Session", "A set of VNFs and configs"),
 		swag.Tag("Configuration", "Operations for configs in a session"),
 		swag.Tag("Instance", "Operations for instances of VNFs in a session"),
+		swag.Tag("Status", "An overview of the system status"),
 	)
 	
 	//disable gin debug mode if loggingLevel > debug 
