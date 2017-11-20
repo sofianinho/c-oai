@@ -8,8 +8,9 @@ import(
 	"time"
 	"strings"
 	"io/ioutil"
-	"github.com/sofianinho/vnf-api-golang/utils"
 	"context"
+	"golang.org/x/sys/unix"	
+	"github.com/sofianinho/vnf-api-golang/utils"
 
 	"github.com/sirupsen/logrus"
 	"github.com/bshuster-repo/logrus-logstash-hook"
@@ -75,6 +76,7 @@ func init(){
 	pflag.String("storage.postgres.db", "vnf_db", "postgres storage server database")
 	pflag.String("templates.path", "./templates", "templates for VNF configuration path")
 	pflag.String("templates.version", "v1", "templates for VNF configuration version")
+	pflag.String("runtime.path", "./runtime", "runtime path for your VNFs and configurations")
 	pflag.String("logging.level", "info", "logging level for your API (debug, info, warn, error, fatal, panic")
 	pflag.String("logging.output", "stdout", "logging output for your API (stdout, file, logstash)")
 	pflag.String("logging.file.path", "./log/vnf.log", "logging path if file output is chosen for your API logging")
@@ -105,6 +107,9 @@ func Parse()(error){
 	Params.BindPFlags(pflag.CommandLine)
 
 	// actually handling the conf
+	if err := runtimeOptions(Params); err!=nil{
+		Log.Fatalf("Unable to apply runtime options: %s", err)
+	}
 	if err := logOptions(Params, Log); err != nil{
 		Log.Fatalf("Unable to apply all logging options: %s", err)
 	}
@@ -161,10 +166,28 @@ func setDefaults(c *viper.Viper){
 	c.SetDefault("storage.file", "./vnf_db")
 	c.SetDefault("templates.path", "./templates")
 	c.SetDefault("templates.version", "1")
+	c.SetDefault("runtime.path", "./tmp/runtime")
 	c.SetDefault("logging.level", "info")
 	c.SetDefault("logging.output", "stdout")
 	c.SetDefault("options.documentation.enabled", true)
 	c.SetDefault("options.documentation.version", "v2.2.10")
+}
+
+func runtimeOptions(c *viper.Viper)(error){
+	p := c.GetString("runtime.path")
+	//Check if runtime already exists
+	if unix.Access(p, unix.F_OK) == nil{
+		//check for read/write
+		if e:=unix.Access(p, unix.R_OK+unix.W_OK); e != nil{
+			return fmt.Errorf("Cannot read/write in runtime path %s: %s", p, e)
+		}
+	}else{
+		//create it
+		if e:=os.Mkdir(p, os.ModeDir|os.FileMode(0755)); e!=nil{
+			return fmt.Errorf("Cannot create runtime dir %s: %s", p, e)
+		}
+	}
+	return nil
 }
 
 func logOptions(c *viper.Viper, l *logrus.Logger) (error){

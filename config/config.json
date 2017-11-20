@@ -13,6 +13,7 @@
         "path": "./templates",
         "version": "1"
     },
+    "runtime": {"path": "./runtime"},
     "logging": {
         "level": "info",
         "output": "stdout",
