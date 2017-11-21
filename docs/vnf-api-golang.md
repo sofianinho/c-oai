@@ -56,18 +56,23 @@ This is a configuration file. You can write your own in any Viper supported form
     "server":{"host": "0.0.0.0", "port": 1337},
     "storage": {
         "type": "file",
-        "file":{"path": "/metadata/vnf_db"},
+        "file":{"path": "./vnf_db"},
         "postgres":{"host": "127.0.0.1", "port": 5432, "user":"postgres", "password": "mysecretpassword", "db": "vnf_db"}
+    },
+    "scheduler":{
+        "type": "system",
+        "docker": {"host": "", "cert_path": "", "api_version": ""}
     },
     "templates": {
         "path": "./templates",
         "version": "1"
     },
+    "runtime": {"path": "./runtime"},
     "logging": {
         "level": "info",
         "output": "stdout",
-        "project_id": "328cce52738c9ab",
         "file": {"path": "/var/log/vnf.log"},
+        "project_id": "328cce52738c9ab",
         "logstash": {"host":"laas-in-prod-ow-pl.itn.ftgroup", "port": 443, "protocol":"tcp"}
     },
     "options": {
@@ -79,6 +84,14 @@ This is a configuration file. You can write your own in any Viper supported form
 ### Storage
 
 This section defines the storage driver to use with the VNF API. Options are `file or postgres`. If the file is chosen a path must be set, otherwise the default will be used. If a postgres database is used, the correct configuration parameters need to be set accordingly.
+
+### Scheduler
+
+This sections describes which scheduler does the VNF manager uses to deploy your vnf. It can be either "system" or "docker". The system scheduler will `exec` the binary in the same environment as the API itself. The docker scheduler will instantiate the docker image of your VNF with the given host configuration.
+
+### Templates
+
+This will generate the configuration files according to the JSON sent through the API. The JSON configuration will then be `compiled` in the template given according to the version requested in the JSON. A version can also be configured by default.
 
 ### Logging
 
