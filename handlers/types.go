@@ -18,6 +18,7 @@ const (
 	confCreated = "Config created"
 	confDeleted = "Config deleted and cleaned up"
 	wrongConfig = "Wrong configuration parameters"
+	wrongConfigVersion = "Wrong template version (does not exist)"
 )
 
 var serverHost string
@@ -33,6 +34,7 @@ var urlPath = fmt.Sprintf("%s%s", config.ApiSubpath, config.ApiCurrentVersion)
 type confJson struct{
 	Alias 	string			`json:"alias,omitempty"`
 	Tags	[]string		`json:"tags,omitempty"`
+	Version	string			`json:"template_version,omitempty"`
 	Params	*types.VNFParams	
 }
 

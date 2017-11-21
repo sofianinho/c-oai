@@ -34,7 +34,12 @@ func NewConfig(c *gin.Context){
 		c.AbortWithStatusJSON(http.StatusBadRequest, apiReply{SessionID: sessionID, Hostname: serverHost, Status: wrongConfig})
 		return
 	}
-	conf, err := core.ConfigNew(s.ID, cf.Params, cf.Alias, cf.Tags)
+	//check for asked version of template
+	if tpl.VersionExists(cf.Version) != nil{
+		c.AbortWithStatusJSON(http.StatusBadRequest, apiReply{SessionID: sessionID, Hostname: serverHost, Status: wrongConfigVersion})
+		return
+	}
+	conf, err := core.ConfigNew(s.ID, cf.Version, cf.Params, cf.Alias, cf.Tags)
 	if err != nil{
 		config.Log.Errorf("Failed to create a new config: %s", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, apiReply{SessionID: sessionID, Hostname: serverHost, Status: unkError})
