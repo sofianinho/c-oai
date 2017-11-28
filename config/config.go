@@ -166,7 +166,7 @@ func setDefaults(c *viper.Viper){
 	c.SetDefault("storage.file", "./vnf_db")
 	c.SetDefault("templates.path", "./templates")
 	c.SetDefault("templates.version", "1")
-	c.SetDefault("runtime.path", "./tmp/runtime")
+	c.SetDefault("runtime.path", "/tmp/runtime")
 	c.SetDefault("logging.level", "info")
 	c.SetDefault("logging.output", "stdout")
 	c.SetDefault("options.documentation.enabled", true)
