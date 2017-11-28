@@ -163,7 +163,7 @@ func setDefaults(c *viper.Viper){
 	c.SetDefault("server.port", 1337)
 	c.SetDefault("scheduler.type", "system")
 	c.SetDefault("storage.type", "file")
-	c.SetDefault("storage.file", "./vnf_db")
+	c.SetDefault("storage.file.path", "./vnf_db")
 	c.SetDefault("templates.path", "./templates")
 	c.SetDefault("templates.version", "1")
 	c.SetDefault("runtime.path", "/tmp/runtime")
@@ -248,7 +248,7 @@ func storageConfig(c *viper.Viper) (error){
 	if c.Get("storage.type") == "file"{
 		file, err := os.OpenFile(c.GetString("storage.file.path"), os.O_CREATE|os.O_WRONLY, 0666)
 		if err != nil {
-			return fmt.Errorf("Failed to create the storage in the path you configured: %s", err)
+			return fmt.Errorf("Failed to create the storage in the path \"%s\" you configured: %s", c.GetString("storage.file.path"), err)
 		}
 		fi, err := file.Stat()
 		if err != nil {
