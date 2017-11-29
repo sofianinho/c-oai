@@ -1,5 +1,5 @@
 hash: d509973eaa3da4fd2d7ecd485d7fe37da7d628e3e2c9c74ec989118073528ccc
-updated: 2017-11-28T09:49:40.751376908+01:00
+updated: 2017-11-28T22:35:14.422978722+01:00
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -133,10 +133,10 @@ imports:
   - load
   - mem
   - net
-- name: github.com/sirupsen/logrus
-  version: f006c2ac4710855cf0f916dd6b77acf6b048dc6e
 - name: github.com/Sirupsen/logrus
   version: 89742aefa4b206dcf400792f3bd35b542998eb3b
+- name: github.com/sirupsen/logrus
+  version: f006c2ac4710855cf0f916dd6b77acf6b048dc6e
 - name: github.com/spf13/afero
   version: 5660eeed305fe5f69c8fc6cf899132a459a97064
   subpackages:
@@ -157,6 +157,12 @@ imports:
   version: 649a5588a82cf604df7624361b11532a7b72a4a7
   subpackages:
   - codec
+- name: github.com/vishvananda/netlink
+  version: f67b75edbf5e3bb7dfe70bb788610693a71be3d1
+  subpackages:
+  - nl
+- name: github.com/vishvananda/netns
+  version: be1fbeda19366dea804f00efff2dd73a1642fdcc
 - name: golang.org/x/crypto
   version: bd6f299fb381e4c3393d1c4b1f0b94f5e77650c8
   subpackages:
