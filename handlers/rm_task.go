@@ -14,7 +14,7 @@ import(
 var DeleteTask = endpoint.New("delete", "/session/{session_id}/instance/{instance_id}", "Delete a VNF instance in your session",
 	endpoint.Path("session_id", "string", "session id for this config", true),
 	endpoint.Path("instance_id", "string", "instance id to delete", true),
-	endpoint.Handler(RmConfig),
+	endpoint.Handler(RmInstance),
 	endpoint.Response(http.StatusOK, apiReply{}, "Successfully deleted an instance"),
 	endpoint.Description("Instance delete in your session"),
 	endpoint.Tags("Instance"),

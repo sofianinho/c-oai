@@ -11,6 +11,15 @@ type MMEConf	struct{
 	Preference	string	`json:"preference"`
 }
 
+//EnbIF is the ENB_INTERFACE section
+type EnbIF struct{
+	S1MmeIF		string		`json:"S1_MME_IF,omitempty"`
+	S1MmeAddr	string		`json:"S1_MME_Addr,omitempty"`
+	S1UIF		string		`json:"S1_U_IF,omitempty"`
+	S1UAddr		string		`json:"S1_U_Addr,omitempty"`
+	S1UPort		int			`json:"S1_U_Port,omitempty"`
+}
+
 //OAIEnb contains typical OAI eNodeB parameters
 type OAIEnb struct{
 	ID		string	`json:"enb_id"`
@@ -24,6 +33,7 @@ type OAIEnb struct{
 	Tx		int		`json:"nb_tx"`
 	Rx		int		`json:"nb_rx"`
 	Mme		MMEConf	`json:"mme"`
+	IF		EnbIF	`json:"-"`
 }
 /*	In the case you wanted other sections for your configuration,
 	you should define your parameters in a new struct and include

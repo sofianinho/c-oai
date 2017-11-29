@@ -48,6 +48,7 @@ func (t *Tasks)InstanceRun(i *types.Instance)(error){
 	//TODO create the task to run using exec.Command and exec.Start and update the pid/status
 	//1. Check path
 	if _, err := exec.LookPath(i.Artefact); err != nil{
+		fmt.Println("Path is: ", os.Getenv("PATH"))
 		return fmt.Errorf("Task %s has artefact %s which is not in PATH: %s", i.ID, i.Artefact,err)
 	}
 	//2. Run task
@@ -92,14 +93,15 @@ func (t *Tasks)InstanceKill(sig syscall.Signal, iID string)(error){
 	if !ok{
 		return fmt.Errorf("Instance %s not in the tasks list", iID)
 	}
-
-	if err := syscall.Kill(k.pid, sig); err!=nil{
-		return fmt.Errorf("Error while sending signal to instance %s: %s",iID, err)
+	if k.status == running{
+		if err := syscall.Kill(k.pid, sig); err!=nil{
+			return fmt.Errorf("Error while sending signal to instance %s: %s",iID, err)
+		}
+		if (sig == syscall.SIGKILL)||(sig == syscall.SIGINT) {
+			syscall.Kill(t.list[iID].pid, sig)
+		}
 	}
-	if (sig == syscall.SIGKILL)||(sig == syscall.SIGINT) {
-		syscall.Kill(t.list[iID].pid, sig)
-		k.status = stopped
-	}
+	k.status = stopped
 	return nil
 }
 

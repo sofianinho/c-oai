@@ -5,6 +5,7 @@ import(
 
 	"github.com/sofianinho/vnf-api-golang/config"
 	"github.com/sofianinho/vnf-api-golang/vnf/types"
+	"github.com/sofianinho/vnf-api-golang/utils"
 
 	"github.com/savaki/swag/endpoint"
 	"github.com/gin-gonic/gin"
@@ -39,6 +40,26 @@ func NewConfig(c *gin.Context){
 		c.AbortWithStatusJSON(http.StatusBadRequest, apiReply{SessionID: sessionID, Hostname: serverHost, Status: wrongConfigVersion})
 		return
 	}
+	//Get the interface and IP to get the MME IP and fill in the cf.IF part
+	var ifaceConf types.EnbIF
+	var err error
+	ifaceConf.S1MmeAddr, _, err = utils.GetRouteAndInterface(cf.Params.Enb.Mme.Ipv4)
+	if err != nil{
+		config.Log.Errorf("MME IPv4 error on system: %s", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, apiReply{SessionID: sessionID, Hostname: serverHost, Status: wrongConfig})
+		return
+	}
+	ifaceConf.S1MmeIF, err = utils.GetNameFromIfIP(ifaceConf.S1MmeAddr)
+	if err != nil{
+		config.Log.Errorf("Error retrieving interface name from IPv4 on system: %s", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, apiReply{SessionID: sessionID, Hostname: serverHost, Status: wrongConfig})
+		return
+	}
+	ifaceConf.S1UAddr = ifaceConf.S1MmeAddr
+	ifaceConf.S1UIF = ifaceConf.S1MmeIF
+	ifaceConf.S1UPort = 2152
+	cf.Params.Enb.IF = ifaceConf
+	//store the new config
 	conf, err := core.ConfigNew(s.ID, cf.Version, cf.Params, cf.Alias, cf.Tags)
 	if err != nil{
 		config.Log.Errorf("Failed to create a new config: %s", err)
