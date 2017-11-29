@@ -1,0 +1,25 @@
+atomdocsjob:
+  image:
+    dockerproxy-iva.si.francetelecom.fr/ubuntu:16.04
+  tags:
+    - innovation
+    - docker
+    - shared
+  script:
+    - echo "Started.."
+    - apt-get update && apt-get install curl -y
+    - cd $CI_PROJECT_DIR && ls -A
+    - ls |grep -v '^docs\|README.md' | xargs rm -r
+    - mv README.md overview.md
+    - mkdir $CI_PROJECT_NAME && mv docs/ overview.md $CI_PROJECT_NAME/
+    - tar -czf $CI_PROJECT_NAME.tar.gz $CI_PROJECT_NAME/
+    - rm -r $CI_PROJECT_NAME
+    - curl --digest --user $LUCY_ATOMDOCS_USER_CREDS -T $CI_PROJECT_NAME.tar.gz http://$LUCY_ATOMDOCS_FILE_SERVER/webdav/$CI_PROJECT_NAME.tar.gz
+    - sleep 3
+    - > 
+        curl -X POST http://$LUCY_ATOMDOCS_CI_SERVER/jenkins/job/atomdocs-build-docs/build 
+        --user $CI_PROJECT_NAME:$LUCY_ATOMDOCS_CI_TOKEN 
+        --data-urlencode json='{"parameter":[{"name":"origin","value":"'$CI_PROJECT_NAME'"}]}'
+    - echo "Finished.."
+
+
