@@ -1,0 +1,26 @@
+{
+  "Params": {
+    "enb": {
+      "cell_type": "CELL_MACRO_ENB",
+      "enb_dl": 2660000000,
+      "enb_id": "0xe00",
+      "enb_mcc": 208,
+      "enb_mnc": 95,
+      "enb_name": "srol",
+      "enb_tra": 1,
+      "enb_ul": -120000000,
+      "mme": {
+        "ipv4": "10.192.177.191",
+        "ipv6": "::1",
+        "preference": "ipv4"
+      },
+      "nb_rx": 1,
+      "nb_tx": 1
+    }
+  },
+  "alias": "string",
+  "tags": [
+    "string"
+  ],
+  "template_version": "v1"
+}
