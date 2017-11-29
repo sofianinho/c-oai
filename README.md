@@ -22,3 +22,5 @@ More operations and configuration parameters may come later
 ## Information
 
 More about authors, contribution, and license in the docs
+
+![api](./docs/api.png)
