@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 	"net/http"
+	"strconv"
 
 	"github.com/sofianinho/vnf-api-golang/config"
 	"github.com/sofianinho/vnf-api-golang/handlers"
@@ -23,7 +24,8 @@ func init(){
 var urlPath = fmt.Sprintf("%s%s", config.ApiSubpath, config.ApiCurrentVersion)
 
 func main(){
-	config.Log.Infof("Current config should now start a webserver on host: %s", config.Params.Get("server.host"))
+	config.Log.Infof("Current config should now start a webserver on host: %s:%d", config.Params.Get("server.host"), config.Params.GetInt("server.port"))
+	config.Log.Infof("Logging mode is: %s", config.Params.GetString("logging.output"))
 	config.Log.Debugf("should now see which template version is used... %s", config.Params.Get("templates.version"))
 	config.Log.Debugf("Project id is: %s", config.Params.GetString("logging.project_id"))
 	config.Log.Debugf("Logging type: %s", config.Params.GetString("logging.output"))
@@ -71,6 +73,7 @@ func main(){
 
 
 	//set the logger for gin
+	fmt.Printf("logging options are: %s, %s\n", config.Params.GetString("logging.output"), config.Params.GetString("logging.logstash.host"))
 	router.Use(ginrus.Ginrus(config.Log, time.RFC3339, true))
 	
 	api.Walk(func(path string, endpoint *swagger.Endpoint) {
@@ -91,5 +94,5 @@ func main(){
 			RoutePrefix: "debug",
 		})
 	}
-	config.Log.Fatal(http.ListenAndServe(":8000", router))
+	config.Log.Fatal(http.ListenAndServe(config.Params.GetString("server.host")+":"+strconv.Itoa(config.Params.GetInt("server.port")), router))
 }

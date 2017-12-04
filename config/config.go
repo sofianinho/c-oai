@@ -105,7 +105,6 @@ func Parse()(error){
 	//Parse CLI options if any
 	pflag.Parse()
 	Params.BindPFlags(pflag.CommandLine)
-
 	// actually handling the conf
 	if err := runtimeOptions(Params); err!=nil{
 		Log.Fatalf("Unable to apply runtime options: %s", err)
@@ -147,7 +146,7 @@ func Parse()(error){
 		SwaggerPath = path
 	}
 	//by default, viper will watch for config changes
-	Params.WatchConfig()
+	//Params.WatchConfig()
 	return nil
 }
 
@@ -201,7 +200,6 @@ func logOptions(c *viper.Viper, l *logrus.Logger) (error){
 	if _, ok := logOutputs[c.GetString("logging.output")]; !ok{
 		return fmt.Errorf("Log output not implemented. Allowed values: %s", logAllowedOutputs)
 	}
-
 	//handle the file output
 	if c.Get("logging.output") == "file"{
 		file, err := os.OpenFile(c.GetString("logging.file.path"), os.O_CREATE|os.O_WRONLY, 0666)
@@ -222,10 +220,11 @@ func logOptions(c *viper.Viper, l *logrus.Logger) (error){
 		t := fmt.Sprintf("%s:%s", c.GetString("logging.logstash.host"), c.GetString("logging.logstash.port"))
 		conn, err := net.DialTimeout(c.GetString("logging.logstash.protocol"),t, logstashTimeout)
         if err != nil {
-                return fmt.Errorf("Unable to connect to logstash host: %s", err)
+			return fmt.Errorf("Unable to connect to logstash host: %s", err)
 		}
-		hook := logrustash.New(conn, logrustash.DefaultFormatter(logrus.Fields{"project": c.GetString("logging.project_id")}))
-        l.Hooks.Add(hook)
+		hook := logrustash.New(conn, logrustash.DefaultFormatter(logrus.Fields{"project": c.GetString("logging.project_id"), "custom": "0", "app": "VNF_OAI"}))
+		l.Hooks.Add(hook)
+		l.Formatter = &logrus.JSONFormatter{TimestampFormat: "2006-01-02 15:04:05"}
 	}
 
 	return nil
