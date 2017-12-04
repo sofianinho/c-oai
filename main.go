@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/contrib/ginrus"
 	"github.com/savaki/swag"
 	"github.com/savaki/swag/swagger"
-
+	"github.com/gin-contrib/pprof"
 )
 
 func init(){
@@ -85,6 +85,11 @@ func main(){
 		router.GET(urlPath+"/swagger.json", gin.WrapH(api.Handler(enableCors)))
 		router.Static(urlPath+"/documentation", config.SwaggerPath+"/dist")
 	}
-
+	//Register a pprof debug/pprof path if the debugging is enabled
+	if config.Log.Level == logrus.DebugLevel{
+		pprof.Register(router, &pprof.Options{
+			RoutePrefix: "debug",
+		})
+	}
 	config.Log.Fatal(http.ListenAndServe(":8000", router))
 }

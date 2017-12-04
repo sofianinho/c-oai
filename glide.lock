@@ -1,5 +1,5 @@
 hash: d509973eaa3da4fd2d7ecd485d7fe37da7d628e3e2c9c74ec989118073528ccc
-updated: 2017-11-28T22:35:14.422978722+01:00
+updated: 2017-12-04T08:59:20.400657241+01:00
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -47,6 +47,8 @@ imports:
   version: aabc10ec26b754e797f9028f4589c5b7bd90dc20
 - name: github.com/fsnotify/fsnotify
   version: 4da3e2cfbabc9f751898f250b49f2439785783a1
+- name: github.com/gin-contrib/pprof
+  version: 1bed199bb871cc4ba0696177304604f1a3eff57c
 - name: github.com/gin-contrib/sse
   version: 22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae
 - name: github.com/gin-gonic/contrib
@@ -146,7 +148,7 @@ imports:
 - name: github.com/spf13/jwalterweatherman
   version: 12bd96e66386c1960ab0f74ced1362f66f552f7b
 - name: github.com/spf13/pflag
-  version: 97afa5e7ca8a08a383cb259e06636b5e2cc7897f
+  version: e57e3eeb33f795204c1ca35f56c44f83227c6e66
 - name: github.com/spf13/viper
   version: 25b30aa063fc18e48662b86996252eabdcf2f0c7
 - name: github.com/StackExchange/wmi
