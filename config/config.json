@@ -19,7 +19,7 @@
         "output": "stdout",
         "file": {"path": "/var/log/vnf.log"},
         "project_id": "328cce52738c9ab",
-        "logstash": {"host":"laas-in-prod-ow-pl.itn.ftgroup", "port": 443, "protocol":"udp"}
+        "logstash": {"host":"mylogstash.mydomain.local", "port": 443, "protocol":"udp"}
     },
     "options": {
         "documentation": { "enabled": true, "version": "v2.2.10"}
